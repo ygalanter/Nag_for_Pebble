@@ -1,0 +1,33 @@
+{
+    "appKeys": {
+        "KEY_BUZZ_INTENSITY": 0,
+        "KEY_BUZZ_INTERVAL": 1,
+        "KEY_BUZZ_START": 2
+    },
+    "capabilities": [
+        "configurable"
+    ],
+    "companyName": "yuri@galanter.net",
+    "longName": "Nag for Pebble",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "images/menu.png",
+                "menuIcon": true,
+                "name": "MENU",
+                "type": "png"
+            }
+        ]
+    },
+    "sdkVersion": "3",
+    "shortName": "Nag for Pebble",
+    "targetPlatforms": [
+        "aplite"
+    ],
+    "uuid": "187e3484-3d4f-4eaf-9e5c-0397439621dc",
+    "versionLabel": "1.2",
+    "watchapp": {
+        "watchface": false
+    }
+}
