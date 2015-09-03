@@ -1,0 +1,176 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Nag config</title>
+    <script type="text/javascript" src="slate.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="slate.min.css" />
+
+
+    <script type="text/javascript">
+
+        //buzz consts
+        var BUZZ_DISABLED = 0, BUZZ_SHORT = 1, BUZZ_LONG = 2, BUZZ_DOUBLE = 3;
+
+        //start const
+        var START_IMMEDIATLY = 0, START_ON_15MIN = 1, START_ON_HALFHOUR = 2, START_ON_HOUR = 3;
+
+
+        var settings;
+
+        // to get value of query string
+        function getURLVariable(name) {
+            name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+            var regexS = "[\\?&]" + name + "=([^&#]*)",
+                regex = new RegExp(regexS),
+                results = regex.exec(window.location.href);
+            if (results == null) return "";
+            else return results[1];
+        }
+
+
+        $(document).ready(function () {
+
+            // loading settings
+            try {
+               settings = JSON.parse(localStorage.getItem("nag_settings"));
+            }
+            catch(err) {
+               settings = null;
+            }
+
+            if (settings == null) {
+                settings = {
+                    buzzIntensity: BUZZ_SHORT,
+                    buzzInterval: 60,
+                    buzzStart: START_ON_HOUR
+                };
+            }
+
+       
+
+            // setting sliders value
+            $('#buzzIntensity').val(settings.buzzIntensity);
+            $('#buzzInterval').val(settings.buzzInterval); $('#textbuzzInterval').val(settings.buzzInterval);
+            $('#buzzStart').val(settings.buzzStart);
+
+            setSliderText('buzzIntensity', settings.buzzIntensity);
+            setSliderText('buzzStart', settings.buzzStart);
+
+            //assigning save button
+            $('#xbtnSave').click(function () {
+
+                localStorage.setItem("nag_settings", JSON.stringify(settings));
+        
+                var location = (decodeURIComponent(getURLVariable('return_to')) || "pebblejs://close#") + encodeURIComponent(JSON.stringify(settings));
+                document.location = location;
+
+            })
+
+         
+            //setting value of slider text
+            function setSliderText(slider_id, slider_value) {
+                var slider_text
+
+                if (slider_id == 'buzzIntensity') {
+                    switch (slider_value) {
+                        case BUZZ_DISABLED: slider_text = 'Disabled'; break;
+                        case BUZZ_SHORT: slider_text = 'Short'; break;
+                        case BUZZ_LONG: slider_text = 'Long'; break;
+                        case BUZZ_DOUBLE: slider_text = 'Double'; break;
+                    }
+                } else if (slider_id == 'buzzStart') {
+                    switch (slider_value) {
+                        case START_IMMEDIATLY: slider_text = 'Immediatly'; break;
+                        case START_ON_HOUR: slider_text = 'On hour change'; break;
+                        case START_ON_HALFHOUR: slider_text = 'On half-hour change'; break;
+                        case START_ON_15MIN: slider_text = 'On 15-min change'; break;
+                    }
+                }
+
+                $('#label' + slider_id).html(slider_text);
+            }
+
+            //setting value of slider
+            $('#buzzIntensity, #buzzStart, #buzzInterval').change(function (e) {
+                e.preventDefault();
+                var intVal = parseInt(this.value);
+                settings[this.id] = intVal;
+                setSliderText(this.id, intVal);
+            })
+        }
+     )
+        
+    </script>
+
+    
+
+
+</head>
+<body>
+
+    <div class="item-container">
+        <div class="item-container-header">Nag for Pebble Options</div>
+
+        <div class="item-container-content">
+            <label class="item">
+                Buzz Intensity: <span id="labelbuzzIntensity"></span>
+                <input type="range" class="item-slider" name="buzzIntensity" id="buzzIntensity" value="0" min="0" max="3">
+            </label>
+        </div>
+
+        <div class="item-container-content">
+            <label class="item">
+                Buzz Interval (minutes):
+                <input type="range" class="item-slider" name="buzzInterval" id="buzzInterval" value="1" min="1" max="120">
+                <div class="item-input-wrapper item-slider-text">
+                    <input type="text" class="item-input" name="buzzInterval" id="textbuzzInterval" value="1" readonly="readonly">
+                </div>
+            </label>
+        </div>
+
+        <div class="item-container-content">
+            <label class="item">
+                Buzz Start Time: <span id="labelbuzzStart"></span><br /><br />
+                <input type="range" class="item-slider" name="buzzStart" id="buzzStart" value="0" min="0" max="3">
+            </label>
+        </div>
+
+    </div>
+
+    <div class="item-container">
+        <div class="button-container">
+            <input type="button" class="item-button" value="SET" id="xbtnSave">
+        </div>
+    </div>
+
+    <div class="item-container">
+        <div class="button-container">
+            <input type="button" value="My Starbucks fund" class="item-button" name="submit" onclick="location.href='https://www.paypal.me/yuriygalanter';">
+        </div>
+    </div>
+
+    <div class="item-container">
+        <div class="item-container-content">
+            <div class="item" style="font-size:small; line-height:130%">
+                If you like this watchface and would like to see it further developed as well as other wonderful Pebble apps and faces created, please know - I run on coffee. It's an essential fuel for inspiration and creativity. So if you click the Fund button above (or the ad below) - I won't run out of fuel :) Thanks!
+            </div>
+        </div>
+    </div>
+
+    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <!-- Pebble Config -->
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-8184318363505287"
+         data-ad-slot="7086382952"
+         data-ad-format="auto"></ins>
+    <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+
+
+</body>
+
+</html>
