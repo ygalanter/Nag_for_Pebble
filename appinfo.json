@@ -23,10 +23,12 @@
     "sdkVersion": "3",
     "shortName": "Nag for Pebble",
     "targetPlatforms": [
-        "aplite"
+        "aplite",
+        "basalt",
+        "chalk"
     ],
     "uuid": "187e3484-3d4f-4eaf-9e5c-0397439621dc",
-    "versionLabel": "1.2",
+    "versionLabel": "1.31",
     "watchapp": {
         "watchface": false
     }

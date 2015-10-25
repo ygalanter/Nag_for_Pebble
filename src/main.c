@@ -11,55 +11,33 @@ static void schedule_and_buzz() {
   wakeup_cancel_all();
   wakeup_service_subscribe(NULL);
 
-  time_t next;
-  
   // APP_LOG(APP_LOG_LEVEL_DEBUG, "Buzz Interval = %d, buzz_start = %d", buzz_interval, buzz_start);
+  
+  //getting current time
+  time_t next = time(NULL);
+  struct tm *t = localtime(&next);
  
   // if inital call is to start at specific hour time - calculate that time
   if (buzz_start != START_IMMEDIATLY) {
     
-      next = time(NULL);
-      struct tm *t = localtime(&next);
-    
-      switch (buzz_start) {
-        case START_ON_15MIN: // rounding to next quarter
-          if (t->tm_min < 15) {
-            t->tm_min = 15;
-          } else if (t->tm_min < 30) {
-            t->tm_min = 30;
-          } else if (t->tm_min < 45) {
-            t->tm_min = 45;
-          } else {
-            t->tm_min = 0;
-            t->tm_hour++;  
-          }
-          break;
-        case START_ON_HALFHOUR: // rounding to next half an hour
-          if (t->tm_min < 30) {
-            t->tm_min = 30;
-          } else {
-            t->tm_min = 0;
-            t->tm_hour++;  
-          }
-          t->tm_sec = 0;
-          break;
-        case START_ON_HOUR: // simple incrementing hour (currently doesnt handle day change (if hour jumps from 23 to 24))
-          t->tm_hour++;
-          t->tm_min = 0;
-          t->tm_sec = 0;
-          break;
+      int period;
+      switch (buzz_start){
+        case START_ON_15MIN: period = 15; break;
+        case START_ON_HALFHOUR: period = 30; break;
+        case START_ON_HOUR: period = 60; break;
+        default: period = 60; break;
       }
     
-      // making next time
-      next = mktime(t);
+      t->tm_sec = 0; // zeroing seconds
+      t->tm_min = t->tm_min - (t->tm_min % period); // rounding minutes
     
       //and after that there will be regular wakeup call
       persist_write_int(KEY_BUZZ_START, START_IMMEDIATLY);
       buzz_start = START_IMMEDIATLY;
-      
-  } else { // otherwise start from current time
-      next = time(NULL) + buzz_interval*60;
+  
   }
+  
+  next = mktime(t) + buzz_interval*60;  // setting next interval
   
   wakeup_schedule(next, 0, false);  
   
@@ -118,13 +96,20 @@ static void init() {
   if ( launch_reason() != APP_LAUNCH_WAKEUP) { 
     
       window = window_create();
-      window_set_background_color(window, GColorWhite);
-      window_set_fullscreen(window, true);
+      window_set_background_color(window, GColorBlack);
+      #ifdef PBL_PLATFORM_APLITE
+        window_set_fullscreen(window, true);
+      #endif
+      GRect bounds = layer_get_bounds(window_get_root_layer(window));
     
-      textlayer = text_layer_create(GRect(10,10,124,148));
-      text_layer_set_text_color(textlayer, GColorWhite);
+      #ifdef PBL_RECT
+        textlayer = text_layer_create(GRect(bounds.origin.x + 10, bounds.origin.y + 20, bounds.size.w -20, bounds.size.h - 20));
+      #else
+        textlayer = text_layer_create(GRect(bounds.origin.x + 15, bounds.origin.y + 35, bounds.size.w - 30, bounds.size.h -30));
+      #endif
       text_layer_set_font(textlayer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
       text_layer_set_background_color(textlayer, GColorBlack);
+      text_layer_set_text_color(textlayer, GColorWhite);
       text_layer_set_text(textlayer, "Please configure the Nag on your phone and tap 'Set' to start the app. This screen will automatically disppear.");
       text_layer_set_text_alignment(textlayer, GTextAlignmentCenter);
       layer_add_child(window_get_root_layer(window), text_layer_get_layer(textlayer));
