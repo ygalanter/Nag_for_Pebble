@@ -8,15 +8,16 @@ int buzz_intensity, buzz_interval, buzz_start;
 
 // schedules next wake up and does current buzz
 static void schedule_and_buzz() {
+  
+  //canceling and resubscribing to wakeup
   wakeup_cancel_all();
   wakeup_service_subscribe(NULL);
-
+    
+  //getting current time
+  time_t next= time(NULL);  
+    
   // APP_LOG(APP_LOG_LEVEL_DEBUG, "Buzz Interval = %d, buzz_start = %d", buzz_interval, buzz_start);
   
-  //getting current time
-  time_t next = time(NULL);
-  struct tm *t = localtime(&next);
- 
   // if inital call is to start at specific hour time - calculate that time
   if (buzz_start != START_IMMEDIATLY) {
     
@@ -28,19 +29,18 @@ static void schedule_and_buzz() {
         default: period = 60; break;
       }
     
-      t->tm_sec = 0; // zeroing seconds
-      t->tm_min = t->tm_min - (t->tm_min % period); // rounding minutes
+      next = (next / 60) * 60; // rounding to a minute (removing seconds)
+      next = next - (next % (period * 60)) + (period * 60); // calculating exact start timing    
     
       //and after that there will be regular wakeup call
       persist_write_int(KEY_BUZZ_START, START_IMMEDIATLY);
       buzz_start = START_IMMEDIATLY;
-  
+    
+  } else { // otherwise scheduling next call according to inteval
+      next = next + buzz_interval*60;  
   }
   
-  next = mktime(t) + buzz_interval*60;  // setting next interval
-  
-  wakeup_schedule(next, 0, false);  
-  
+  //buzzing
   switch(buzz_intensity){
     case BUZZ_SHORT:
       vibes_short_pulse();
@@ -52,6 +52,9 @@ static void schedule_and_buzz() {
       vibes_double_pulse();
       break;  
   }
+  
+  // scheduling next wakeup
+  wakeup_schedule(next, 0, false);  
   
 }
 
@@ -97,9 +100,9 @@ static void init() {
     
       window = window_create();
       window_set_background_color(window, GColorBlack);
-      #ifdef PBL_PLATFORM_APLITE
-        window_set_fullscreen(window, true);
-      #endif
+//       #ifdef PBL_PLATFORM_APLITE
+//         window_set_fullscreen(window, true);
+//       #endif
       GRect bounds = layer_get_bounds(window_get_root_layer(window));
     
       #ifdef PBL_RECT
