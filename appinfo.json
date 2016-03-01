@@ -8,7 +8,7 @@
         "configurable"
     ],
     "companyName": "yuri@galanter.net",
-    "enableMultiJS": false,
+    "enableMultiJS": true,
     "longName": "Nag for Pebble",
     "projectType": "native",
     "resources": {
@@ -29,7 +29,7 @@
         "chalk"
     ],
     "uuid": "187e3484-3d4f-4eaf-9e5c-0397439621dc",
-    "versionLabel": "1.32",
+    "versionLabel": "1.33",
     "watchapp": {
         "watchface": false
     }
