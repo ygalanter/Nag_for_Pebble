@@ -2,6 +2,7 @@
 #define KEY_BUZZ_INTENSITY 0
 #define KEY_BUZZ_INTERVAL 1
 #define KEY_BUZZ_START 2  
+#define KEY_NEXT_TIME 3
 
 // buzz intensity
 #define BUZZ_DISABLED 0

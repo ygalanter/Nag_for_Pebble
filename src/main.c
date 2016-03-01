@@ -3,6 +3,7 @@
 
 static Window *window;
 static TextLayer *textlayer;
+time_t next;
 
 int buzz_intensity, buzz_interval, buzz_start;
 
@@ -10,13 +11,23 @@ int buzz_intensity, buzz_interval, buzz_start;
 static void schedule_and_buzz() {
   
   //canceling and resubscribing to wakeup
+  vibes_cancel();
   wakeup_cancel_all();
   wakeup_service_subscribe(NULL);
     
   //getting current time
-  time_t next= time(NULL);  
-    
-  // APP_LOG(APP_LOG_LEVEL_DEBUG, "Buzz Interval = %d, buzz_start = %d", buzz_interval, buzz_start);
+  if (persist_exists(KEY_NEXT_TIME)){ //if stored time exist - read it
+     next = persist_read_int(KEY_NEXT_TIME);
+  } else { // otherwise, for the first time - read system time
+     next  = time(NULL);  
+  }
+  
+//   //Debug
+//   struct tm *t = localtime(&next);
+//   char s_time[] = "88:44:67";
+//   strftime(s_time, sizeof(s_time), "%H:%M:%S", t);
+//   APP_LOG(APP_LOG_LEVEL_DEBUG, "Current time = %s", s_time);  
+//   APP_LOG(APP_LOG_LEVEL_DEBUG, "Buzz Interval = %d, buzz_start = %d", buzz_interval, buzz_start);
   
   // if inital call is to start at specific hour time - calculate that time
   if (buzz_start != START_IMMEDIATLY) {
@@ -53,7 +64,15 @@ static void schedule_and_buzz() {
       break;  
   }
   
+//   //debug
+//   t = localtime(&next);
+//   strftime(s_time, sizeof(s_time), "%H:%M:%S", t);
+//   strftime(s_time, sizeof(s_time), "%H:%M:%S", t);
+//   APP_LOG(APP_LOG_LEVEL_DEBUG, "Next time = %s", s_time);  
+
+  
   // scheduling next wakeup
+  persist_write_int(KEY_NEXT_TIME, next);
   wakeup_schedule(next, 0, false);  
   
 }
@@ -130,6 +149,7 @@ static void init() {
 
 static void deinit() {
   if (window) { // if UI existed - destroy it and schedule first buzz
+    persist_delete(KEY_NEXT_TIME); // upon config close delete saved time so upon 1st start new system one can be read
     app_message_deregister_callbacks();
     text_layer_destroy(textlayer);
     window_destroy(window);
